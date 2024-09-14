@@ -8,23 +8,15 @@ import { RootStackParamList } from "./types";
 import { screenNames } from "@src/navigations";
 import { AddExpense, ViewExpense } from "@src/screens";
 import { CreateCategory } from "@src/screens/create-category";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-// import { storageKey } from "@src/cache/storage-key";
+import { StatusBar } from "expo-status-bar";
 
 const ScreenStack = createNativeStackNavigator<RootStackParamList>();
 const headerOptions: NativeStackNavigationOptions = { headerShown: false };
 
 export const Router = () => {
-  // useEffect(() => {
-  //   const deleteCache = async () => {
-  //     await AsyncStorage.removeItem(storageKey.CATEGORY);
-  //     await AsyncStorage.removeItem(storageKey.EXPENSE);
-  //   };
-  //   deleteCache();
-  // });
-
   return (
     <NavigationContainer>
+      <StatusBar style={"dark"} />
       <ScreenStack.Navigator screenOptions={headerOptions}>
         <ScreenStack.Screen
           name={screenNames.VIEW_EXPENSE}

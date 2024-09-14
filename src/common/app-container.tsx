@@ -1,6 +1,6 @@
 import { layout, moderateScale } from "@src/resources/scaling";
 import React from "react";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet, Platform, StatusBar } from "react-native";
 
 type appContainerProps = {
   children: React.ReactNode;
@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
     width: Platform.OS === "ios" ? "95%" : "96%",
     height: "100%",
     alignSelf: "center",
-    paddingTop: Platform.OS === "android" ? moderateScale(50) : layout.size50,
+    paddingTop:
+      Platform.OS === "android" ? StatusBar.currentHeight : layout.size50,
   },
 });
