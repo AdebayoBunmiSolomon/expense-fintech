@@ -9,6 +9,7 @@ import { generateRandomId } from "@src/helper/helper";
 import { screenNames } from "@src/navigations";
 import { colors } from "@src/resources/colors";
 import { RootStackScreenProps } from "@src/router/types";
+import { useAddExpense } from "@src/services/useAddExpense";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -27,11 +28,16 @@ export const AddExpense = ({
   });
   const [showCategory, setShowCategory] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const { addExpense, data, loading } = useAddExpense();
 
   //create an Id for the first expense that needs to be added on first mount
+  //and also clear the values of the inputs when a new expense data is created
   useEffect(() => {
     setValue("id", generateRandomId(5));
-  }, []);
+    setValue("description", "");
+    setValue("amount", 0);
+    setValue("category", "");
+  }, [data]);
 
   useEffect(() => {
     setValue("category", selectedCategory);
@@ -39,7 +45,12 @@ export const AddExpense = ({
   }, [selectedCategory]);
 
   const onSubmit = async (data: expenseFormType) => {
-    console.log(data);
+    await addExpense(
+      data.id,
+      data.description.trim().toLowerCase(),
+      data.category,
+      data.amount
+    );
   };
   return (
     <>
@@ -58,6 +69,7 @@ export const AddExpense = ({
                 field.onChange(value);
               }}
               error={errors?.description?.message}
+              value={field.value}
             />
           )}
           name='description'
@@ -95,6 +107,7 @@ export const AddExpense = ({
               }}
               error={errors?.amount?.message}
               numberInput
+              value={field.value}
             />
           )}
           name='amount'
@@ -108,6 +121,7 @@ export const AddExpense = ({
             backgroundColor: colors.main,
           }}
           onPress={handleSubmit(onSubmit)}
+          isLoading={loading}
         />
       </AppContainer>
       {showCategory && (

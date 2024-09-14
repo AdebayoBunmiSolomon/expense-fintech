@@ -22,16 +22,17 @@ export const ExpenseItem: React.FC<expenseItemProps> = ({
       <View style={styles.item}>
         <View
           style={{
-            maxWidth: "100%",
+            maxWidth: "80%",
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
+            gap: moderateScale(5),
           }}>
           <RegularText sizeSmall black>
             {description} -{" "}
           </RegularText>
           <RegularText sizeSmall blue>
-            {formatAmount(amount)}
+            {formatAmount(amount && amount)}
           </RegularText>
         </View>
       </View>

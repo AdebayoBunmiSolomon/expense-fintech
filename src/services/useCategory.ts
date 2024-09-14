@@ -21,6 +21,9 @@ export const useCategory = () => {
       if (categoryExits) {
         Alert.alert("Error", "Category exists already");
       } else {
+        // Introduce a delay (e.g., 2 seconds)
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         const updatedCategory = [
           ...categoryFrmCache,
           {

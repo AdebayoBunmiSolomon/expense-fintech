@@ -31,7 +31,7 @@ type inputProps = {
   inputStyle?: StyleProp<ViewStyle> | any;
   error?: string;
   onChangeText?: (value: any) => void;
-  value?: string;
+  value?: any;
 };
 
 export const Input: React.FC<inputProps> = ({

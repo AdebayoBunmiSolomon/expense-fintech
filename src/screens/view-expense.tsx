@@ -2,7 +2,7 @@ import { AppContainer, Loader, ScreenHeader } from "@src/common";
 import { screenNames } from "@src/navigations";
 import { moderateScale, verticalScale } from "@src/resources/scaling";
 import { RootStackScreenProps } from "@src/router/types";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { LightText } from "@src/components/shared/text/light-text";
 import { SemiBoldText } from "@src/components/shared/text/semi-bold-text";
@@ -10,24 +10,47 @@ import { useViewExpenses } from "@src/services";
 import { formatAmount } from "@src/helper/helper";
 import { ExpenseItem } from "@src/components/screen/expense-item";
 import { colors } from "@src/resources/colors";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import { IconButton } from "@src/components/shared/buttons/icon-button";
+import { useIsFocused } from "@react-navigation/native";
+import { CategoryModal } from "@src/components/screen";
+import { RegularText } from "@src/components/shared/text/regular-text";
 
 export const ViewExpense = ({
   navigation,
 }: RootStackScreenProps<screenNames.VIEW_EXPENSE>) => {
-  const { getTotalAmt, totalAmt, deleteExpenseItem, data, expenseLoading } =
-    useViewExpenses();
+  const {
+    getTotalAmt,
+    totalAmt,
+    deleteExpenseItem,
+    data,
+    expenseLoading,
+    loadExpenses,
+    filterExpenseByCategory,
+  } = useViewExpenses();
+  const isFocused = useIsFocused();
+  const [showCategory, setShowCategory] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
+  //calculate total amount when data changes
   useEffect(() => {
     getTotalAmt();
-  }, [data]);
+  }, [isFocused]);
+
+  //load expenses when screen is focused and data changes
+  useEffect(() => {
+    loadExpenses();
+  }, [isFocused]);
+
+  useEffect(() => {
+    filterExpenseByCategory(selectedCategory);
+  }, [selectedCategory]);
 
   const renderRightAction = (itemId: string) => {
     return (
       <TouchableOpacity
         style={styles.deleteIconBtn}
-        onPress={() => deleteExpenseItem(itemId)}>
+        onPress={async () => await deleteExpenseItem(itemId)}>
         <MaterialIcons
           name='delete'
           color={colors.white}
@@ -52,18 +75,53 @@ export const ViewExpense = ({
           <Loader size='small' color={colors.blue} />
         ) : (
           <>
-            <View style={styles.topTextContainer}>
-              <LightText sizeSmall>
-                {totalAmt > 0 ? "Total Expense Amount" : undefined}
-              </LightText>
-              <SemiBoldText sizeSmall blue>
-                {totalAmt > 0
-                  ? `${formatAmount(totalAmt)}.00`
-                  : "No Expenses created."}
-              </SemiBoldText>
+            <View style={styles.titleContainer}>
+              <View style={styles.topTextContainer}>
+                <LightText sizeSmall>
+                  {totalAmt > 0 ? "Total Amount:" : undefined}
+                </LightText>
+                <SemiBoldText sizeSmall blue>
+                  {totalAmt > 0
+                    ? `${formatAmount(totalAmt)}.00`
+                    : "No Expenses created."}
+                </SemiBoldText>
+              </View>
+              <View>
+                <TouchableOpacity
+                  style={styles.filterBtn}
+                  onPress={() => setShowCategory(!showCategory)}>
+                  <LightText sizeSmall blue>
+                    filter
+                  </LightText>
+                  <Entypo
+                    name='chevron-down'
+                    size={moderateScale(20)}
+                    color={colors.blue}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.categoryTitleContainer}>
+              {selectedCategory ? (
+                <View>
+                  <RegularText>
+                    {selectedCategory && selectedCategory} Expenses
+                  </RegularText>
+                </View>
+              ) : null}
+              <TouchableOpacity
+                style={styles.filterBtn}
+                onPress={async () => {
+                  setSelectedCategory("");
+                  await loadExpenses();
+                }}>
+                <SemiBoldText sizeSmall blue>
+                  refresh
+                </SemiBoldText>
+              </TouchableOpacity>
             </View>
             <FlatList
-              data={data}
+              data={data && data}
               keyExtractor={(items, index) =>
                 items.id.toString() + index.toString()
               }
@@ -109,6 +167,13 @@ export const ViewExpense = ({
           </>
         )}
       </AppContainer>
+      {showCategory && (
+        <CategoryModal
+          closeModal={() => setShowCategory(!showCategory)}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={(value) => setSelectedCategory(value)}
+        />
+      )}
     </>
   );
 };
@@ -131,5 +196,21 @@ const styles = StyleSheet.create({
   btnContainer: {
     gap: moderateScale(10),
     marginBottom: verticalScale(20),
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  filterBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: moderateScale(5),
+  },
+  categoryTitleContainer: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: verticalScale(10),
+    flexDirection: "row",
   },
 });

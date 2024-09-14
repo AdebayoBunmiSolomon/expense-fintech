@@ -48,7 +48,7 @@ export const CreateCategory = ({
   }, [categoryData, categoryDataLoading, loading]);
 
   const onSubmit = async (data: categoryFormType) => {
-    await createCategory(data.id, data.category.toLowerCase());
+    await createCategory(data.id, data.category.trim().toLowerCase());
   };
 
   const renderRightAction = (itemId: string) => {

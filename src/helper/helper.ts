@@ -35,7 +35,7 @@ export const getArrOfCategoryFromCache = async () => {
 };
 
 export const getArrOfExpenseFromCache = async () => {
-  const arrOfExpense = await AsyncStorage.getItem(storageKey.CATEGORY);
+  const arrOfExpense = await AsyncStorage.getItem(storageKey.EXPENSE);
   const parsedArrOfExpense: expenseType = JSON.parse(arrOfExpense!);
   if (parsedArrOfExpense && parsedArrOfExpense.length > 0) {
     return parsedArrOfExpense;
