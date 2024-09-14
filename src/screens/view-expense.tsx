@@ -3,7 +3,13 @@ import { screenNames } from "@src/navigations";
 import { moderateScale, verticalScale } from "@src/resources/scaling";
 import { RootStackScreenProps } from "@src/router/types";
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { LightText } from "@src/components/shared/text/light-text";
 import { SemiBoldText } from "@src/components/shared/text/semi-bold-text";
 import { useViewExpenses } from "@src/services";
@@ -31,6 +37,10 @@ export const ViewExpense = ({
   const isFocused = useIsFocused();
   const [showCategory, setShowCategory] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  useEffect(() => {
+    Alert.alert("Information!", "Please note that you swipe to delete item");
+  }, []);
 
   //calculate total amount when data changes
   useEffect(() => {
@@ -75,71 +85,80 @@ export const ViewExpense = ({
           <Loader size='small' color={colors.blue} />
         ) : (
           <>
-            <View style={styles.titleContainer}>
-              <View style={styles.topTextContainer}>
-                <LightText sizeSmall>
-                  {totalAmt > 0 ? "Total Amount:" : undefined}
-                </LightText>
-                <SemiBoldText sizeSmall blue>
-                  {totalAmt > 0
-                    ? `${formatAmount(totalAmt)}.00`
-                    : "No Expenses created."}
-                </SemiBoldText>
-              </View>
-              <View>
-                <TouchableOpacity
-                  style={styles.filterBtn}
-                  onPress={() => setShowCategory(!showCategory)}>
-                  <LightText sizeSmall blue>
-                    filter
-                  </LightText>
-                  <Entypo
-                    name='chevron-down'
-                    size={moderateScale(20)}
-                    color={colors.blue}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.categoryTitleContainer}>
-              {selectedCategory ? (
-                <View>
-                  <RegularText>
-                    {selectedCategory && selectedCategory} Expenses
-                  </RegularText>
+            {data && data.length > 0 ? (
+              <>
+                <View style={styles.titleContainer}>
+                  <View style={styles.topTextContainer}>
+                    <LightText sizeSmall>
+                      {totalAmt > 0 ? "Total Amount:" : undefined}
+                    </LightText>
+                    <SemiBoldText sizeSmall blue>
+                      {totalAmt > 0
+                        ? `${formatAmount(totalAmt)}.00`
+                        : "No Expenses created."}
+                    </SemiBoldText>
+                  </View>
+                  <View>
+                    <TouchableOpacity
+                      style={styles.filterBtn}
+                      onPress={() => setShowCategory(!showCategory)}>
+                      <LightText sizeSmall blue>
+                        filter
+                      </LightText>
+                      <Entypo
+                        name='chevron-down'
+                        size={moderateScale(20)}
+                        color={colors.blue}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              ) : null}
-              <TouchableOpacity
-                style={styles.filterBtn}
-                onPress={async () => {
-                  setSelectedCategory("");
-                  await loadExpenses();
-                }}>
-                <SemiBoldText sizeSmall blue>
-                  refresh
-                </SemiBoldText>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={data && data}
-              keyExtractor={(items, index) =>
-                items.id.toString() + index.toString()
-              }
-              renderItem={({ item, index }) => (
-                <View key={index}>
-                  <ExpenseItem
-                    description={item.description}
-                    amount={item.amount}
-                    renderRightActions={() => renderRightAction(item.id)}
-                  />
+                <View style={styles.categoryTitleContainer}>
+                  {selectedCategory ? (
+                    <View>
+                      <RegularText>
+                        {selectedCategory && selectedCategory} Expenses
+                      </RegularText>
+                    </View>
+                  ) : null}
+                  <TouchableOpacity
+                    style={styles.filterBtn}
+                    onPress={async () => {
+                      setSelectedCategory("");
+                      await loadExpenses();
+                    }}>
+                    <SemiBoldText sizeSmall blue>
+                      refresh
+                    </SemiBoldText>
+                  </TouchableOpacity>
                 </View>
-              )}
-              showsVerticalScrollIndicator={false}
-              maxToRenderPerBatch={2}
-              initialNumToRender={2}
-              windowSize={2}
-              updateCellsBatchingPeriod={100}
-            />
+                <FlatList
+                  data={data && data}
+                  keyExtractor={(items, index) =>
+                    items.id.toString() + index.toString()
+                  }
+                  renderItem={({ item, index }) => (
+                    <View key={index}>
+                      <ExpenseItem
+                        description={item.description}
+                        amount={item.amount}
+                        renderRightActions={() => renderRightAction(item.id)}
+                      />
+                    </View>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  maxToRenderPerBatch={2}
+                  initialNumToRender={2}
+                  windowSize={2}
+                  updateCellsBatchingPeriod={100}
+                />
+              </>
+            ) : (
+              <RegularText black sizeBody>
+                No expenses created
+              </RegularText>
+            )}
+
             <View style={styles.btnContainer}>
               <IconButton
                 title='New category'
